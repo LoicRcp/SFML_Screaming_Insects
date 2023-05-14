@@ -104,16 +104,29 @@ void Insect::insect_listen(std::list<shout *> *shoutList, sf::RenderWindow *wind
             float shout_target_value = (*it)->getDistance();
             if (shout_target_value < *insect_target_value){
 
-                sf::VertexArray line(sf::Lines, 2);
-                line[0].position = Insect::position;
-                line[1].position = (*it)->getOrigin();
+                sf::VertexArray line(sf::TriangleStrip, 4);
+                sf::Vector2f direction = (*it)->getOrigin() - Insect::position;
+                sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+                sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
+                float thickness = 5.0f; // Adjust the thickness as needed
 
-                if (shout_target_type == Target::Type::food){
-                    line[0].color = sf::Color::Green;
-                    line[1].color = sf::Color::Green;
+                sf::Vector2f offset = (thickness / 2.f) * unitPerpendicular;
+
+                line[0].position = Insect::position - offset;
+                line[1].position = (*it)->getOrigin() - offset;
+                line[2].position = Insect::position + offset;
+                line[3].position = (*it)->getOrigin() + offset;
+
+                if (shout_target_type == Target::Type::food) {
+                    line[0].color = sf::Color(253, 255, 112, 200);
+                    line[1].color = sf::Color(253, 255, 112, 200);
+                    line[2].color = sf::Color(253, 255, 112, 200);
+                    line[3].color = sf::Color(253, 255, 112, 200);
                 } else {
-                    line[0].color = sf::Color::Blue;
-                    line[1].color = sf::Color::Blue;
+                    line[0].color = sf::Color(110, 227, 250,200);
+                    line[1].color = sf::Color(110, 227, 250,200);
+                    line[2].color = sf::Color(110, 227, 250,200);
+                    line[3].color = sf::Color(110, 227, 250,200);
                 }
                 window->draw(line);
 

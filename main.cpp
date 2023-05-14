@@ -10,14 +10,14 @@
 #include <list>
 #include "shout.h"
 
-extern const int WIDTH = 1200;
+extern const int WIDTH = 1800;
 extern const int HEIGHT = 1200;
 extern const int MAX_FOOD;
 extern const int MAX_BASE;
 extern int CUR_FOOD;
 extern int CUR_BASE;
 
-#define OBJ_NUMBER 1500
+#define OBJ_NUMBER 500
 
 
 void clear_shout_list(std::list<shout*>* shoutList) {
@@ -93,9 +93,11 @@ int main() {
             obj_list[i]->display(&window);
         }
 
+        /*
         for (int i = 0; i < OBJ_NUMBER; ++i) {
             obj_list[i]->insect_shout(&shoutList);
         }
+         */
 
         for (int i = 0; i < OBJ_NUMBER; ++i) {
             obj_list[i]->insect_listen(&shoutList, &window);

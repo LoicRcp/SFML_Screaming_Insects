@@ -44,7 +44,7 @@ Target::Target(sf::Vector2f position, bool base, int id) {
         Target::shape.setFillColor(sf::Color::Blue);
     }
     else {
-        Target::shape.setFillColor(sf::Color::Green);
+        Target::shape.setFillColor(sf::Color::Yellow);
     }
 }
 
