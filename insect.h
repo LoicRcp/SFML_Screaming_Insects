@@ -39,6 +39,7 @@ public:
     void display(sf::RenderWindow* window);
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
+    void insect_listen(std::list<shout*>* shoutList);
     void border_constraint();
     void target_collision_detection(Target** base_targets_list,Target** food_targets_list);
 };
@@ -78,8 +79,9 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
     if (CUR_FOOD != 0 && CUR_BASE != 0){
         Target::Type to_shout = shout_base ? Target::base : Target::food;
         int seek_id = shout_base ? Insect::base_seeking_id : Insect::food_seeking_id;
-        int distance = shout_base ? base_distance[base_seeking_id] : food_distance[food_seeking_id];
-        shoutList->push_back(new shout(to_shout,
+        int distance = (shout_base ? base_distance[base_seeking_id] : food_distance[food_seeking_id]) + Insect::shout_radius;
+        shoutList->push_back(new shout(Insect::position,
+                                       to_shout,
                                       seek_id,
                                       distance));
         if (shout_base) {
@@ -88,6 +90,24 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
             Insect::food_seeking_id = Insect::food_seeking_id + 1 % CUR_FOOD;
         }
         shout_base = !shout_base;
+    }
+}
+void Insect::insect_listen(std::list<shout *> *shoutList) {
+    for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
+        sf::Vector2f distanceVect = (*it)->getOrigin() - Insect::position;
+        float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
+        if (distance <= Insect::shout_radius){
+            Target::Type shout_target_type = (*it)->getType();
+            int targetId = (*it)->getId();
+            float* insect_target_value = shout_target_type == Target::Type::food ? &food_distance[targetId] : &base_distance[targetId];
+            float shout_target_value = (*it)->getDistance();
+            if (shout_target_value < *insect_target_value){
+                *insect_target_value = shout_target_value;
+                if (shout_target_type == Insect::seeking){
+                    Insect::direction = (*it)->getOrigin() - Insect::position;
+                }
+            }
+        }
     }
 }
 

@@ -17,7 +17,7 @@ extern const int MAX_BASE;
 extern int CUR_FOOD;
 extern int CUR_BASE;
 
-#define OBJ_NUMBER 1
+#define OBJ_NUMBER 100
 
 void clear_shout_list(std::list<shout*>* shoutList) {
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it) {
@@ -95,10 +95,14 @@ int main() {
         for (int i = 0; i < OBJ_NUMBER; ++i) {
             obj_list[i]->insect_shout(&shoutList);
         }
+
+        for (int i = 0; i < OBJ_NUMBER; ++i) {
+            obj_list[i]->insect_listen(&shoutList);
+        }
         window.display();
 
 
-        if (!shoutList.empty()){
+        if (false && !shoutList.empty()){
             printf("Content of shoutList:\n");
             for (auto it = shoutList.begin(); it != shoutList.end(); ++it) {
                 std::cout << (*it)->toString();
