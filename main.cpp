@@ -38,16 +38,14 @@ int main() {
         obj_list[i] = new Insect(i, sf::Vector2f(rand() % WIDTH, rand() % HEIGHT));
     }
 
-    int targets_number = 0;
-    int base_number = 0;
-    int food_number = 0;
-
     Target** food_targets_list = new Target*[MAX_FOOD];
     Target** base_targets_list = new Target*[MAX_BASE];
 
     std::list<shout*> shoutList;
 
     LineContainer lineContainer;
+
+    bool drawLines = true;
 
     while (window.isOpen()) {
         clear_shout_list(&shoutList);
@@ -59,6 +57,10 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
+            } else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Space) {
+                    drawLines = !drawLines;
+                }
             } else if (event.type == sf::Event::MouseButtonPressed) {
                 sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
@@ -105,7 +107,7 @@ int main() {
             obj_list[i]->insect_listen(&shoutList, &lineContainer);
         }
 
-        lineContainer.drawLines(&window);
+        lineContainer.drawLines(&window, drawLines);
 
         window.display();
 

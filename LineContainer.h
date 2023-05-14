@@ -20,9 +20,9 @@ public:
         lines.push_back(line);
     }
 
-    void drawLines(sf::RenderWindow* window) {
+    void drawLines(sf::RenderWindow* window, bool draw) {
         for (auto it = lines.begin(); it != lines.end();) {
-            window->draw(*it);
+            if (draw) window->draw(*it);
 
             // Reduce alpha by 10 for all vertices in the line
             for (int i = 0; i < it->getVertexCount(); ++i) {
