@@ -24,7 +24,7 @@ private:
     int id;
     sf::Vector2f position;
     sf::Vector2f direction;
-    int radius = 5;
+    int radius = 1;
     sf::CircleShape shape;
     float shout_radius = 50;
     float* food_distance = (float*)malloc(sizeof(float)*MAX_FOOD);
@@ -47,7 +47,7 @@ public:
 Insect::Insect(int id, sf::Vector2f position) {
     Insect::id = id;
     Insect::position = position;
-    Insect::direction = sf::Vector2f(cos(rand()%360) * SPEED , sin(rand()%360) * SPEED);
+    Insect::direction = sf::Vector2f(cos(rand()%360 * SPEED) , sin(rand()%360) * SPEED);
     Insect::shape = sf::CircleShape(Insect::radius);
     Insect::shape.setPosition(position.x, position.y);
     Insect::shape.setOrigin(Insect::radius, Insect::radius);
@@ -65,6 +65,7 @@ void Insect::display(sf::RenderWindow *window) {
 }
 
 void Insect::move(float dt){
+
     Insect::position+=Insect::direction * dt;
     Insect::shape.setPosition(Insect::position.x, Insect::position.y);
     for (int i = 0; i < CUR_FOOD; ++i){
@@ -105,6 +106,9 @@ void Insect::insect_listen(std::list<shout *> *shoutList) {
                 *insect_target_value = shout_target_value;
                 if (shout_target_type == Insect::seeking){
                     Insect::direction = (*it)->getOrigin() - Insect::position;
+                    float mag = sqrt(pow(Insect::direction.x, 2) + pow(Insect::direction.y, 2));
+                    Insect::direction.x = Insect::direction.x * SPEED / mag;
+                    Insect::direction.y = Insect::direction.y * SPEED / mag;
                 }
             }
         }

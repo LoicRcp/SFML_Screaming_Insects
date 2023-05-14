@@ -17,7 +17,7 @@ extern const int MAX_BASE;
 extern int CUR_FOOD;
 extern int CUR_BASE;
 
-#define OBJ_NUMBER 100
+#define OBJ_NUMBER 1000
 
 void clear_shout_list(std::list<shout*>* shoutList) {
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it) {
