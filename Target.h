@@ -34,7 +34,7 @@ private:
 
 
 Target::Target(sf::Vector2f position, bool base, int id) {
-    Target::position = position - sf::Vector2f(radius, radius);
+    Target::position = position;
     Target::shape = sf::CircleShape(radius);
     Target::shape.setPosition(Target::position.x, Target::position.y);
     Target::shape.setOrigin(Target::radius, Target::radius);
