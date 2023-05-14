@@ -11,6 +11,7 @@
 #include <list>
 #include "shout.h"
 #include "Target.h"
+#include "LineContainer.h"
 
 #define SPEED 100
 
@@ -39,7 +40,7 @@ public:
     void display(sf::RenderWindow* window);
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
-    void insect_listen(std::list<shout*>* shoutList, sf::RenderWindow *window);
+    void insect_listen(std::list<shout*>* shoutList, LineContainer* lineContainer);
     void border_constraint();
     void target_collision_detection(Target** base_targets_list,Target** food_targets_list);
 };
@@ -93,7 +94,7 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
         shout_base = !shout_base;
     }
 }
-void Insect::insect_listen(std::list<shout *> *shoutList, sf::RenderWindow *window) {
+void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineContainer){
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
         sf::Vector2f distanceVect = (*it)->getOrigin() - Insect::position;
         float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
@@ -108,7 +109,7 @@ void Insect::insect_listen(std::list<shout *> *shoutList, sf::RenderWindow *wind
                 sf::Vector2f direction = (*it)->getOrigin() - Insect::position;
                 sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
                 sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
-                float thickness = 5.0f; // Adjust the thickness as needed
+                float thickness = 2.0f; // Adjust the thickness as needed
 
                 sf::Vector2f offset = (thickness / 2.f) * unitPerpendicular;
 
@@ -118,17 +119,17 @@ void Insect::insect_listen(std::list<shout *> *shoutList, sf::RenderWindow *wind
                 line[3].position = (*it)->getOrigin() + offset;
 
                 if (shout_target_type == Target::Type::food) {
-                    line[0].color = sf::Color(253, 255, 112, 200);
-                    line[1].color = sf::Color(253, 255, 112, 200);
-                    line[2].color = sf::Color(253, 255, 112, 200);
-                    line[3].color = sf::Color(253, 255, 112, 200);
+                    line[0].color = sf::Color(253, 255, 112, 255);
+                    line[1].color = sf::Color(253, 255, 112, 255);
+                    line[2].color = sf::Color(253, 255, 112, 255);
+                    line[3].color = sf::Color(253, 255, 112, 255);
                 } else {
-                    line[0].color = sf::Color(110, 227, 250,200);
-                    line[1].color = sf::Color(110, 227, 250,200);
-                    line[2].color = sf::Color(110, 227, 250,200);
-                    line[3].color = sf::Color(110, 227, 250,200);
+                    line[0].color = sf::Color(110, 227, 250,255);
+                    line[1].color = sf::Color(110, 227, 250,255);
+                    line[2].color = sf::Color(110, 227, 250,255);
+                    line[3].color = sf::Color(110, 227, 250,255);
                 }
-                window->draw(line);
+                lineContainer->addLine(line);
 
 
                 *insect_target_value = shout_target_value;
