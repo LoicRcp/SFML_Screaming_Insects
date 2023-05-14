@@ -16,13 +16,17 @@ int CUR_BASE = 0;
 
 class Target {
 public:
+    float getRadius() const;
     enum Type {base, food};
     Target(sf::Vector2f position, bool base, int id);
     void display(sf::RenderWindow* window);
+    const sf::Vector2f &getPosition() const;
+    int getId() const;
+    Type getType() const;
 private:
     Type type;
     sf::Vector2f position;
-    float radius = 100;
+    float radius = 20;
     sf::CircleShape shape;
     int id;
 };
@@ -33,6 +37,7 @@ Target::Target(sf::Vector2f position, bool base, int id) {
     Target::position = position - sf::Vector2f(radius, radius);
     Target::shape = sf::CircleShape(radius);
     Target::shape.setPosition(Target::position.x, Target::position.y);
+    Target::shape.setOrigin(Target::radius, Target::radius);
     Target::id = id;
     Target::type = base ? Target::base : Target::food;
     if (base) {
@@ -49,7 +54,20 @@ void Target::display(sf::RenderWindow *window) {
     window->draw(Target::shape);
 }
 
+const sf::Vector2f &Target::getPosition() const {
+    return position;
+}
 
+float Target::getRadius() const {
+    return radius;
+}
 
+Target::Type Target::getType() const {
+    return type;
+}
+
+int Target::getId() const {
+    return id;
+}
 
 #endif //SFML_SCREAMING_INSECTS_TARGET_H

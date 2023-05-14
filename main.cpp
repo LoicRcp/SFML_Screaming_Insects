@@ -13,7 +13,7 @@
 extern const int WIDTH = 1200;
 extern const int HEIGHT = 1200;
 
-#define OBJ_NUMBER 2
+#define OBJ_NUMBER 1
 
 void clear_shout_list(std::list<shout*>* shoutList) {
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it) {
@@ -33,9 +33,9 @@ int main() {
         obj_list[i] = new Insect(i, sf::Vector2f(rand() % WIDTH, rand() % HEIGHT));
     }
 
-    int targetsNumber = 0;
-    int baseNumber = 0;
-    int foodNumber = 0;
+    int targets_number = 0;
+    int base_number = 0;
+    int food_number = 0;
     Target** targetsList = new Target*[2];
 
     std::list<shout*> shoutList;
@@ -51,24 +51,25 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
-                if (targetsNumber < 2) {
-                    event.mouseButton.button == sf::Mouse::Left ? baseNumber++ : foodNumber++;
+                if (targets_number < 2) {
+                    event.mouseButton.button == sf::Mouse::Left ? base_number++ : food_number++;
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    targetsList[targetsNumber] = new Target(sf::Vector2f(mousePos.x, mousePos.y),
+                    targetsList[targets_number] = new Target(sf::Vector2f(mousePos.x, mousePos.y),
                                                             event.mouseButton.button == sf::Mouse::Left,
-                                                            event.mouseButton.button == sf::Mouse::Left ? baseNumber : foodNumber);
-                    targetsNumber++;
+                                                            event.mouseButton.button == sf::Mouse::Left ? base_number : food_number);
+                    targets_number++;
                 }
             }
         }
 
 
-        for (int i = 0; i < targetsNumber; ++i) {
+        for (int i = 0; i < targets_number; ++i) {
             targetsList[i]->display(&window);
         }
 
         for (int i = 0; i < OBJ_NUMBER; ++i) {
             obj_list[i]->border_constraint();
+            obj_list[i]->target_collision_detection(targetsList, targets_number, window);
             obj_list[i]->move(dt.asSeconds());
 
             obj_list[i]->display(&window);
@@ -79,15 +80,16 @@ int main() {
         }
         window.display();
 
+        /*
         if (!shoutList.empty()){
             printf("Content of shoutList:\n");
             for (auto it = shoutList.begin(); it != shoutList.end(); ++it) {
                 std::cout << (*it)->toString();
             }
-        }
+        }*/
     }
 
-    for (int i = 0; i < targetsNumber; ++i) {
+    for (int i = 0; i < targets_number; ++i) {
         delete targetsList[i];
     }
     delete[] targetsList;

@@ -24,6 +24,7 @@ private:
     int id;
     sf::Vector2f position;
     sf::Vector2f direction;
+    int radius = 5;
     sf::CircleShape shape;
     float shout_radius = 50;
     float* food_distance = (float*)malloc(sizeof(float)*MAX_FOOD);
@@ -39,14 +40,16 @@ public:
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
     void border_constraint();
+    void target_collision_detection(Target** targetsList, int targets_number, sf::RenderWindow& window);
 };
 
 Insect::Insect(int id, sf::Vector2f position) {
     Insect::id = id;
     Insect::position = position;
     Insect::direction = sf::Vector2f(cos(rand()%360) * SPEED , sin(rand()%360) * SPEED);
-    Insect::shape = sf::CircleShape(5);
+    Insect::shape = sf::CircleShape(Insect::radius);
     Insect::shape.setPosition(position.x, position.y);
+    Insect::shape.setOrigin(Insect::radius, Insect::radius);
 
     for (int i = 0; i < MAX_FOOD; ++i){
         food_distance[i] = 1000;
@@ -95,7 +98,27 @@ void Insect::border_constraint(){
     if (Insect::position.y > HEIGHT || Insect::position.y < 0){
         Insect::direction.y *= -1;
     }
+}
 
+void Insect::target_collision_detection(Target** targetsList, int targets_number, sf::RenderWindow& window) {
+    for (int i = 0; i < targets_number; i++){
+        sf::Vector2f target_pos = targetsList[i]->getPosition();
+        float distance = sqrt(pow(target_pos.x-Insect::position.x, 2) + pow(target_pos.y-Insect::position.y, 2));
+        if (distance < targetsList[i]->getRadius() + Insect::radius){
+            Target::Type target_type = targetsList[i]->getType();
+
+            if (target_type == Target::Type::base){
+                base_distance[targetsList[i]->getId()] = 0;
+            } else {
+                food_distance[targetsList[i]->getId()] = 0;
+            }
+
+            if (target_type == seeking){
+                Insect::direction = -Insect::direction;
+                Insect::seeking = (Insect::seeking == Target::Type::food) ? Target::Type::base : Target::Type::food;
+            }
+        }
+    }
 }
 
 
