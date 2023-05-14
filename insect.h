@@ -40,7 +40,7 @@ public:
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
     void border_constraint();
-    void target_collision_detection(Target** targetsList, int targets_number, sf::RenderWindow& window);
+    void target_collision_detection(Target** base_targets_list,Target** food_targets_list);
 };
 
 Insect::Insect(int id, sf::Vector2f position) {
@@ -100,7 +100,9 @@ void Insect::border_constraint(){
     }
 }
 
-void Insect::target_collision_detection(Target** targetsList, int targets_number, sf::RenderWindow& window) {
+void Insect::target_collision_detection(Target** base_targets_list,Target** food_targets_list) {
+    Target** targetsList = (Insect::seeking == Target::Type::food) ? food_targets_list : base_targets_list;
+    int targets_number = (Insect::seeking == Target::Type::food) ? CUR_FOOD : CUR_BASE;
     for (int i = 0; i < targets_number; i++){
         sf::Vector2f target_pos = targetsList[i]->getPosition();
         float distance = sqrt(pow(target_pos.x-Insect::position.x, 2) + pow(target_pos.y-Insect::position.y, 2));
@@ -112,7 +114,6 @@ void Insect::target_collision_detection(Target** targetsList, int targets_number
             } else {
                 food_distance[targetsList[i]->getId()] = 0;
             }
-
             if (target_type == seeking){
                 Insect::direction = -Insect::direction;
                 Insect::seeking = (Insect::seeking == Target::Type::food) ? Target::Type::base : Target::Type::food;

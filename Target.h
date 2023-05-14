@@ -42,11 +42,9 @@ Target::Target(sf::Vector2f position, bool base, int id) {
     Target::type = base ? Target::base : Target::food;
     if (base) {
         Target::shape.setFillColor(sf::Color::Blue);
-        CUR_BASE++;
     }
     else {
         Target::shape.setFillColor(sf::Color::Green);
-        CUR_FOOD++;
     }
 }
 

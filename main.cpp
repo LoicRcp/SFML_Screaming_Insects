@@ -12,6 +12,10 @@
 
 extern const int WIDTH = 1200;
 extern const int HEIGHT = 1200;
+extern const int MAX_FOOD;
+extern const int MAX_BASE;
+extern int CUR_FOOD;
+extern int CUR_BASE;
 
 #define OBJ_NUMBER 1
 
@@ -36,7 +40,9 @@ int main() {
     int targets_number = 0;
     int base_number = 0;
     int food_number = 0;
-    Target** targetsList = new Target*[2];
+
+    Target** food_targets_list = new Target*[MAX_FOOD];
+    Target** base_targets_list = new Target*[MAX_BASE];
 
     std::list<shout*> shoutList;
 
@@ -51,25 +57,36 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
-                if (targets_number < 2) {
-                    event.mouseButton.button == sf::Mouse::Left ? base_number++ : food_number++;
-                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-                    targetsList[targets_number] = new Target(sf::Vector2f(mousePos.x, mousePos.y),
-                                                            event.mouseButton.button == sf::Mouse::Left,
-                                                            event.mouseButton.button == sf::Mouse::Left ? base_number : food_number);
-                    targets_number++;
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+                if (event.mouseButton.button == sf::Mouse::Left && CUR_BASE < MAX_BASE){
+
+                    base_targets_list[CUR_BASE] = new Target(sf::Vector2f(mousePos.x, mousePos.y),
+                                                             event.mouseButton.button == sf::Mouse::Left,
+                                                             event.mouseButton.button == sf::Mouse::Left ? CUR_BASE : CUR_FOOD);
+                    CUR_BASE++;
+                } else if (event.mouseButton.button == sf::Mouse::Right && CUR_FOOD < MAX_FOOD) {
+
+                    food_targets_list[CUR_FOOD] = new Target(sf::Vector2f(mousePos.x, mousePos.y),
+                                                             event.mouseButton.button == sf::Mouse::Left,
+                                                             event.mouseButton.button == sf::Mouse::Left ? CUR_BASE : CUR_FOOD);
+                    CUR_FOOD++;
                 }
             }
         }
 
 
-        for (int i = 0; i < targets_number; ++i) {
-            targetsList[i]->display(&window);
+        for (int i = 0; i < CUR_BASE; ++i) {
+            base_targets_list[i]->display(&window);
+        }
+
+        for (int i = 0; i < CUR_FOOD; ++i) {
+            food_targets_list[i]->display(&window);
         }
 
         for (int i = 0; i < OBJ_NUMBER; ++i) {
             obj_list[i]->border_constraint();
-            obj_list[i]->target_collision_detection(targetsList, targets_number, window);
+            obj_list[i]->target_collision_detection(base_targets_list, food_targets_list);
             obj_list[i]->move(dt.asSeconds());
 
             obj_list[i]->display(&window);
@@ -80,19 +97,24 @@ int main() {
         }
         window.display();
 
-        /*
+
         if (!shoutList.empty()){
             printf("Content of shoutList:\n");
             for (auto it = shoutList.begin(); it != shoutList.end(); ++it) {
                 std::cout << (*it)->toString();
             }
-        }*/
+        }
     }
 
-    for (int i = 0; i < targets_number; ++i) {
-        delete targetsList[i];
+    for (int i = 0; i < CUR_BASE; ++i) {
+        delete base_targets_list[i];
     }
-    delete[] targetsList;
+    delete[] base_targets_list;
+
+    for (int i = 0; i < CUR_FOOD; ++i) {
+        delete food_targets_list[i];
+    }
+    delete[] food_targets_list;
 
     for (int i = 0; i < OBJ_NUMBER; ++i) {
         delete obj_list[i];
