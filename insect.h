@@ -16,6 +16,8 @@
 
 extern int CUR_BASE;
 extern int CUR_FOOD;
+extern const int WIDTH;
+extern const int HEIGHT;
 
 class Insect {
 private:
@@ -36,6 +38,7 @@ public:
     void display(sf::RenderWindow* window);
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
+    void border_constraint();
 };
 
 Insect::Insect(int id, sf::Vector2f position) {
@@ -83,6 +86,16 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
         }
         shout_base = !shout_base;
     }
+}
+
+void Insect::border_constraint(){
+    if (Insect::position.x > WIDTH || Insect::position.x < 0){
+        Insect::direction.x *= -1;
+    }
+    if (Insect::position.y > HEIGHT || Insect::position.y < 0){
+        Insect::direction.y *= -1;
+    }
+
 }
 
 

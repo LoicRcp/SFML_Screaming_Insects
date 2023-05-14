@@ -10,9 +10,10 @@
 #include <list>
 #include "shout.h"
 
-#define WIDTH 1200
-#define HEIGHT 1200
-#define OBJ_NUMBER 1
+extern const int WIDTH = 1200;
+extern const int HEIGHT = 1200;
+
+#define OBJ_NUMBER 2
 
 void clear_shout_list(std::list<shout*>* shoutList) {
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it) {
@@ -67,7 +68,9 @@ int main() {
         }
 
         for (int i = 0; i < OBJ_NUMBER; ++i) {
+            obj_list[i]->border_constraint();
             obj_list[i]->move(dt.asSeconds());
+
             obj_list[i]->display(&window);
         }
 
