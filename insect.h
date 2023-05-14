@@ -30,16 +30,16 @@ private:
     float* food_distance = (float*)malloc(sizeof(float)*MAX_FOOD);
     float* base_distance = (float*)malloc(sizeof(float)*MAX_BASE);
 
-    Target::Type seeking = Target::food;
+    Target::Type seeking = rand()%2 == 0 ? Target::base : Target::food;;
     int food_seeking_id = 0;
     int base_seeking_id = 0;
-    bool shout_base = false;
+    bool shout_base = rand()%2 == 0 ? true : false;
 public:
     Insect(int id, sf::Vector2f position);
     void display(sf::RenderWindow* window);
     void move(float dt);
     void insect_shout(std::list<shout*>* shoutList);
-    void insect_listen(std::list<shout*>* shoutList);
+    void insect_listen(std::list<shout*>* shoutList, sf::RenderWindow *window);
     void border_constraint();
     void target_collision_detection(Target** base_targets_list,Target** food_targets_list);
 };
@@ -93,7 +93,7 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
         shout_base = !shout_base;
     }
 }
-void Insect::insect_listen(std::list<shout *> *shoutList) {
+void Insect::insect_listen(std::list<shout *> *shoutList, sf::RenderWindow *window) {
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
         sf::Vector2f distanceVect = (*it)->getOrigin() - Insect::position;
         float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
@@ -103,6 +103,21 @@ void Insect::insect_listen(std::list<shout *> *shoutList) {
             float* insect_target_value = shout_target_type == Target::Type::food ? &food_distance[targetId] : &base_distance[targetId];
             float shout_target_value = (*it)->getDistance();
             if (shout_target_value < *insect_target_value){
+
+                sf::VertexArray line(sf::Lines, 2);
+                line[0].position = Insect::position;
+                line[1].position = (*it)->getOrigin();
+
+                if (shout_target_type == Target::Type::food){
+                    line[0].color = sf::Color::Green;
+                    line[1].color = sf::Color::Green;
+                } else {
+                    line[0].color = sf::Color::Blue;
+                    line[1].color = sf::Color::Blue;
+                }
+                window->draw(line);
+
+
                 *insect_target_value = shout_target_value;
                 if (shout_target_type == Insect::seeking){
                     Insect::direction = (*it)->getOrigin() - Insect::position;
