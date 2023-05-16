@@ -48,7 +48,7 @@ public:
 Insect::Insect(int id, sf::Vector2f position) {
     Insect::id = id;
     Insect::position = position;
-    Insect::direction = sf::Vector2f(cos(rand()%360 * SPEED) , sin(rand()%360) * SPEED);
+    Insect::direction = sf::Vector2f(cos(rand()%360)* SPEED , sin(rand()%360)* SPEED);
     Insect::shape = sf::CircleShape(Insect::radius);
     Insect::shape.setPosition(position.x, position.y);
     Insect::shape.setOrigin(Insect::radius, Insect::radius);
