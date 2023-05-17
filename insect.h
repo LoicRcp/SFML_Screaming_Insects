@@ -7,13 +7,14 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Transform.hpp>
 #include <math.h>
 #include <list>
 #include "shout.h"
 #include "Target.h"
 #include "LineContainer.h"
 
-#define SPEED 100
+#define BASE_SPEED 100
 
 extern int CUR_BASE;
 extern int CUR_FOOD;
@@ -30,7 +31,7 @@ private:
     float shout_radius = 50;
     float* food_distance = (float*)malloc(sizeof(float)*MAX_FOOD);
     float* base_distance = (float*)malloc(sizeof(float)*MAX_BASE);
-
+    float relative_speed = rand()%30 + 1;
     Target::Type seeking = rand()%2 == 0 ? Target::base : Target::food;;
     int food_seeking_id = 0;
     int base_seeking_id = 0;
@@ -48,7 +49,7 @@ public:
 Insect::Insect(int id, sf::Vector2f position) {
     Insect::id = id;
     Insect::position = new sf::Vector2f(position.x, position.y);
-    Insect::direction = sf::Vector2f(cos(rand()%360)* SPEED , sin(rand()%360)* SPEED);
+    Insect::direction = sf::Vector2f(cos(rand()%360) * BASE_SPEED + relative_speed , sin(rand() % 360) * BASE_SPEED + relative_speed);
     Insect::shape = sf::CircleShape(Insect::radius);
     Insect::shape.setPosition(position.x, position.y);
     Insect::shape.setOrigin(Insect::radius, Insect::radius);
@@ -66,6 +67,11 @@ void Insect::display(sf::RenderWindow *window) {
 }
 
 void Insect::move(float dt){
+    sf::Transform rotation;
+    // Random float number between -3 and 3
+    int random = rand()%7 - 3;
+    rotation.rotate(random);
+    Insect::direction = rotation.transformPoint(Insect::direction);
 
     *Insect::position+=Insect::direction * dt;
     Insect::shape.setPosition(Insect::position->x, Insect::position->y);
@@ -117,8 +123,8 @@ void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineCon
                 if (shout_target_type == Insect::seeking){
                     Insect::direction = (*it)->getOrigin() - *Insect::position;
                     float mag = sqrt(pow(Insect::direction.x, 2) + pow(Insect::direction.y, 2));
-                    Insect::direction.x = Insect::direction.x * SPEED / mag;
-                    Insect::direction.y = Insect::direction.y * SPEED / mag;
+                    Insect::direction.x = Insect::direction.x * BASE_SPEED / mag;
+                    Insect::direction.y = Insect::direction.y * BASE_SPEED / mag;
                 }
             }
         }
