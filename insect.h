@@ -23,7 +23,7 @@ extern const int HEIGHT;
 class Insect {
 private:
     int id;
-    sf::Vector2f position;
+    sf::Vector2f* position;
     sf::Vector2f direction;
     int radius = 1;
     sf::CircleShape shape;
@@ -47,7 +47,7 @@ public:
 
 Insect::Insect(int id, sf::Vector2f position) {
     Insect::id = id;
-    Insect::position = position;
+    Insect::position = new sf::Vector2f(position.x, position.y);
     Insect::direction = sf::Vector2f(cos(rand()%360)* SPEED , sin(rand()%360)* SPEED);
     Insect::shape = sf::CircleShape(Insect::radius);
     Insect::shape.setPosition(position.x, position.y);
@@ -67,8 +67,8 @@ void Insect::display(sf::RenderWindow *window) {
 
 void Insect::move(float dt){
 
-    Insect::position+=Insect::direction * dt;
-    Insect::shape.setPosition(Insect::position.x, Insect::position.y);
+    *Insect::position+=Insect::direction * dt;
+    Insect::shape.setPosition(Insect::position->x, Insect::position->y);
     for (int i = 0; i < CUR_FOOD; ++i){
         food_distance[i]++;
     }
@@ -82,10 +82,12 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
         Target::Type to_shout = shout_base ? Target::base : Target::food;
         int seek_id = shout_base ? Insect::base_seeking_id : Insect::food_seeking_id;
         int distance = (shout_base ? base_distance[base_seeking_id] : food_distance[food_seeking_id]) + Insect::shout_radius;
-        shoutList->push_back(new shout(Insect::position,
+        shoutList->push_back(new shout(sf::Vector2f(Insect::position->x, Insect::position->y),
                                        to_shout,
                                       seek_id,
-                                      distance));
+                                      distance,
+                                      Insect::position,
+                                      Insect::id));
         if (shout_base) {
             Insect::base_seeking_id = Insect::base_seeking_id + 1 % CUR_BASE;
         } else {
@@ -96,7 +98,10 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
 }
 void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineContainer){
     for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
-        sf::Vector2f distanceVect = (*it)->getOrigin() - Insect::position;
+        if ((*it)->getEmitterId() == Insect::id){
+            continue;
+        }
+        sf::Vector2f distanceVect = (*it)->getOrigin() - *Insect::position;
         float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
         if (distance <= Insect::shout_radius){
             Target::Type shout_target_type = (*it)->getType();
@@ -105,36 +110,12 @@ void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineCon
             float shout_target_value = (*it)->getDistance();
             if (shout_target_value < *insect_target_value){
 
-                sf::VertexArray line(sf::TriangleStrip, 4);
-                sf::Vector2f direction = (*it)->getOrigin() - Insect::position;
-                sf::Vector2f unitDirection = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
-                sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
-                float thickness = 2.0f; // Adjust the thickness as needed
-
-                sf::Vector2f offset = (thickness / 2.f) * unitPerpendicular;
-
-                line[0].position = Insect::position - offset;
-                line[1].position = (*it)->getOrigin() - offset;
-                line[2].position = Insect::position + offset;
-                line[3].position = (*it)->getOrigin() + offset;
-
-                if (shout_target_type == Target::Type::food) {
-                    line[0].color = sf::Color(253, 255, 112, 255);
-                    line[1].color = sf::Color(253, 255, 112, 255);
-                    line[2].color = sf::Color(253, 255, 112, 255);
-                    line[3].color = sf::Color(253, 255, 112, 255);
-                } else {
-                    line[0].color = sf::Color(110, 227, 250,255);
-                    line[1].color = sf::Color(110, 227, 250,255);
-                    line[2].color = sf::Color(110, 227, 250,255);
-                    line[3].color = sf::Color(110, 227, 250,255);
-                }
+                Line line((*it)->getEmitterPosition(), Insect::position, shout_target_type);
                 lineContainer->addLine(line);
-
 
                 *insect_target_value = shout_target_value;
                 if (shout_target_type == Insect::seeking){
-                    Insect::direction = (*it)->getOrigin() - Insect::position;
+                    Insect::direction = (*it)->getOrigin() - *Insect::position;
                     float mag = sqrt(pow(Insect::direction.x, 2) + pow(Insect::direction.y, 2));
                     Insect::direction.x = Insect::direction.x * SPEED / mag;
                     Insect::direction.y = Insect::direction.y * SPEED / mag;
@@ -145,10 +126,10 @@ void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineCon
 }
 
 void Insect::border_constraint(){
-    if (Insect::position.x > WIDTH || Insect::position.x < 0){
+    if (Insect::position->x > WIDTH || Insect::position->x < 0){
         Insect::direction.x *= -1;
     }
-    if (Insect::position.y > HEIGHT || Insect::position.y < 0){
+    if (Insect::position->y > HEIGHT || Insect::position->y < 0){
         Insect::direction.y *= -1;
     }
 }
@@ -158,7 +139,7 @@ void Insect::target_collision_detection(Target** base_targets_list,Target** food
     int targets_number = (Insect::seeking == Target::Type::food) ? CUR_FOOD : CUR_BASE;
     for (int i = 0; i < targets_number; i++){
         sf::Vector2f target_pos = targetsList[i]->getPosition();
-        float distance = sqrt(pow(target_pos.x-Insect::position.x, 2) + pow(target_pos.y-Insect::position.y, 2));
+        float distance = sqrt(pow(target_pos.x-Insect::position->x, 2) + pow(target_pos.y-Insect::position->y, 2));
         if (distance < targetsList[i]->getRadius() + Insect::radius){
             Target::Type target_type = targetsList[i]->getType();
 
