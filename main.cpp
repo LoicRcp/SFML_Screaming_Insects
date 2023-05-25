@@ -10,14 +10,14 @@
 #include <list>
 #include "shout.h"
 
-extern const int WIDTH = 1800;
-extern const int HEIGHT = 1200;
+extern const int WIDTH = 1200;
+extern const int HEIGHT = 800;
 extern const int MAX_FOOD;
 extern const int MAX_BASE;
 extern int CUR_FOOD;
 extern int CUR_BASE;
 
-#define OBJ_NUMBER 800
+#define OBJ_NUMBER 400
 
 
 void clear_shout_list(std::list<shout*>* shoutList) {
@@ -117,6 +117,8 @@ int main() {
                 std::cout << (*it)->toString();
             }
         }
+        std::cout << "FPS: " << 1.0f / dt.asSeconds() << std::endl;
+        //sf::sleep(sf::milliseconds(500));
     }
 
     for (int i = 0; i < CUR_BASE; ++i) {

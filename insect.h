@@ -36,6 +36,7 @@ private:
     int food_seeking_id = 0;
     int base_seeking_id = 0;
     bool shout_base = rand()%2 == 0 ? true : false;
+    bool scout = rand()%20 == 0 ? true : false;
 public:
     Insect(int id, sf::Vector2f position);
     void display(sf::RenderWindow* window);
@@ -95,36 +96,38 @@ void Insect::insect_shout(std::list<shout*>* shoutList){
                                       Insect::position,
                                       Insect::id));
         if (shout_base) {
-            Insect::base_seeking_id = Insect::base_seeking_id + 1 % CUR_BASE;
+            Insect::base_seeking_id = (Insect::base_seeking_id + 1) % CUR_BASE;
         } else {
-            Insect::food_seeking_id = Insect::food_seeking_id + 1 % CUR_FOOD;
+            Insect::food_seeking_id = (Insect::food_seeking_id + 1) % CUR_FOOD;
         }
         shout_base = !shout_base;
     }
 }
 void Insect::insect_listen(std::list<shout *> *shoutList, LineContainer* lineContainer){
-    for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
-        if ((*it)->getEmitterId() == Insect::id){
-            continue;
-        }
-        sf::Vector2f distanceVect = (*it)->getOrigin() - *Insect::position;
-        float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
-        if (distance <= Insect::shout_radius){
-            Target::Type shout_target_type = (*it)->getType();
-            int targetId = (*it)->getId();
-            float* insect_target_value = shout_target_type == Target::Type::food ? &food_distance[targetId] : &base_distance[targetId];
-            float shout_target_value = (*it)->getDistance();
-            if (shout_target_value < *insect_target_value){
+    if (!Insect::scout){
+        for (auto it = shoutList->begin(); it != shoutList->end(); ++it){
+            if ((*it)->getEmitterId() == Insect::id){
+                continue;
+            }
+            sf::Vector2f distanceVect = (*it)->getOrigin() - *Insect::position;
+            float distance = sqrt(pow(distanceVect.x, 2) + pow(distanceVect.y, 2));
+            if (distance <= Insect::shout_radius){
+                Target::Type shout_target_type = (*it)->getType();
+                int targetId = (*it)->getId();
+                float* insect_target_value = shout_target_type == Target::Type::food ? &food_distance[targetId] : &base_distance[targetId];
+                float shout_target_value = (*it)->getDistance();
+                if (shout_target_value < *insect_target_value){
 
-                Line line((*it)->getEmitterPosition(), Insect::position, shout_target_type);
-                lineContainer->addLine(line);
+                    Line line((*it)->getEmitterPosition(), Insect::position, shout_target_type);
+                    lineContainer->addLine(line);
 
-                *insect_target_value = shout_target_value;
-                if (shout_target_type == Insect::seeking){
-                    Insect::direction = (*it)->getOrigin() - *Insect::position;
-                    float mag = sqrt(pow(Insect::direction.x, 2) + pow(Insect::direction.y, 2));
-                    Insect::direction.x = Insect::direction.x * BASE_SPEED / mag;
-                    Insect::direction.y = Insect::direction.y * BASE_SPEED / mag;
+                    *insect_target_value = shout_target_value;
+                    if (shout_target_type == Insect::seeking){
+                        Insect::direction = (*it)->getOrigin() - *Insect::position;
+                        float mag = sqrt(pow(Insect::direction.x, 2) + pow(Insect::direction.y, 2));
+                        Insect::direction.x = Insect::direction.x * BASE_SPEED / mag;
+                        Insect::direction.y = Insect::direction.y * BASE_SPEED / mag;
+                    }
                 }
             }
         }

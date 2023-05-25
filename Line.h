@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include "insect.h"
+#include <optional>
 
 class Line {
 private:
@@ -23,6 +24,7 @@ public:
     Line(sf::Vector2f* emitterPosition, sf::Vector2f* receiverPosition, Target::Type shout_target_type);
     void update();
     bool display(sf::RenderWindow* window, bool draw);
+    ~Line();
 };
 
 
@@ -69,5 +71,8 @@ bool Line::display(sf::RenderWindow* window, bool draw) {
     return true;
 }
 
+Line::~Line() {
+
+}
 
 #endif //SFML_SCREAMING_INSECTS_LINE_H
